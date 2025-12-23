@@ -16,6 +16,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     full_name = Column(String)
     phone = Column(String)
+    role = Column(String, default="customer")  # customer, restaurant, delivery, admin
     created_at = Column(DateTime, default=datetime.utcnow)
     is_active = Column(Boolean, default=True)
     

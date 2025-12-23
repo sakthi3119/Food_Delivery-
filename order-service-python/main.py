@@ -56,6 +56,7 @@ class UserCreate(BaseModel):
     password: str
     full_name: Optional[str] = None
     phone: Optional[str] = None
+    role: Optional[str] = "customer"  # customer, restaurant, delivery, admin
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -67,6 +68,7 @@ class UserResponse(BaseModel):
     username: str
     full_name: Optional[str]
     phone: Optional[str]
+    role: Optional[str]
     
     class Config:
         from_attributes = True
