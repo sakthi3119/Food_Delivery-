@@ -443,6 +443,27 @@ async def migrate_database_endpoint():
     except Exception as e:
         return {"message": f"Migration failed: {str(e)}", "status": "error"}
 
+@app.post("/fix-users")
+async def fix_users_endpoint():
+    """Add role column to users table and update existing users"""
+    try:
+        from sqlalchemy import text
+        
+        with engine.connect() as conn:
+            # Try to add role column if it doesn't exist
+            try:
+                conn.execute(text("ALTER TABLE users ADD COLUMN role VARCHAR DEFAULT 'customer'"))
+                conn.commit()
+                return {"message": "Added role column successfully", "status": "success"}
+            except Exception as e:
+                # Column might already exist, update existing users
+                conn.execute(text("UPDATE users SET role = 'customer' WHERE role IS NULL"))
+                conn.commit()
+                return {"message": "Updated existing users with default role", "status": "success"}
+                
+    except Exception as e:
+        return {"message": f"Fix failed: {str(e)}", "status": "error"}
+
 # ============================================
 # DATABASE SEEDING ENDPOINT
 # ============================================
