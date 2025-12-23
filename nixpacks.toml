@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["nodejs", "python3", "jdk17"]
+
+[phases.build]
+cmds = ["echo 'Multi-service app - deploy each service separately'"]
+
+[start]
+cmd = "echo 'Please deploy each service individually from Railway dashboard'"

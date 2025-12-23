@@ -1,0 +1,47 @@
+services:
+  # Frontend
+  - type: web
+    name: food-delivery-frontend
+    env: docker
+    dockerfilePath: ./frontend-ui/Dockerfile.prod
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: VITE_API_URL
+        value: https://food-delivery-api.onrender.com
+
+  # API Gateway
+  - type: web
+    name: food-delivery-api
+    env: docker
+    dockerfilePath: ./api-gateway/Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: ORDER_SERVICE_URL
+        value: https://food-delivery-order.onrender.com
+      - key: DELIVERY_SERVICE_URL
+        value: https://food-delivery-delivery.onrender.com
+      - key: NODE_ENV
+        value: production
+
+  # Order Service
+  - type: web
+    name: food-delivery-order
+    env: docker
+    dockerfilePath: ./order-service-python/Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8001
+
+  # Delivery Service
+  - type: web
+    name: food-delivery-delivery
+    env: docker
+    dockerfilePath: ./delivery-service-java/Dockerfile
+    plan: free
+    envVars:
+      - key: SERVER_PORT
+        value: 8002
