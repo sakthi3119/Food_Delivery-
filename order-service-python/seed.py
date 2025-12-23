@@ -165,10 +165,14 @@ def seed_demo_user(db: Session):
         print("⚠️  Demo user already exists, skipping")
         return
     
+    # Simple password hash
+    from passlib.context import CryptContext
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    
     demo_user = User(
         email="demo@fooddelivery.com",
         username="demouser",
-        hashed_password=get_password_hash("demo123"),
+        hashed_password=pwd_context.hash("demo123"),
         full_name="Demo User",
         phone="+91 9999999999"
     )
