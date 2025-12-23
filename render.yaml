@@ -26,6 +26,10 @@ services:
     envVars:
       - key: PORT
         value: 8001
+      - key: DATABASE_URL
+        value: postgresql://fooddelivery_iyr0_user:hcf7j1IQT6ofe6uuwXohqGeznapO0Mej@dpg-d553s4buibrs738rlr2g-a/fooddelivery_iyr0
+      - key: SECRET_KEY
+        value: food-delivery-secret-key-2025-change-in-production
 
   # Internal Comm Service
   - type: web
