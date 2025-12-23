@@ -411,6 +411,38 @@ async def get_order(
     }
 
 # ============================================
+# DATABASE MIGRATION ENDPOINT
+# ============================================
+
+@app.post("/migrate-database")
+async def migrate_database_endpoint():
+    """Add missing columns to existing tables"""
+    try:
+        from sqlalchemy import text
+        
+        # Add role column to users table if it doesn't exist
+        with engine.connect() as conn:
+            # Check if role column exists
+            result = conn.execute(text("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name='users' AND column_name='role'
+            """))
+            
+            if result.fetchone() is None:
+                # Add role column
+                conn.execute(text("""
+                    ALTER TABLE users ADD COLUMN role VARCHAR DEFAULT 'customer'
+                """))
+                conn.commit()
+                return {"message": "Migration successful - added role column", "status": "success"}
+            else:
+                return {"message": "Role column already exists", "status": "skipped"}
+                
+    except Exception as e:
+        return {"message": f"Migration failed: {str(e)}", "status": "error"}
+
+# ============================================
 # DATABASE SEEDING ENDPOINT
 # ============================================
 
