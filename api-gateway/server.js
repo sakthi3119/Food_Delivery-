@@ -28,6 +28,52 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // ============================================
+// AUTHENTICATION ROUTES (→ Order Service)
+// ============================================
+
+/**
+ * POST /api/auth/register
+ * Register a new user
+ */
+app.post('/api/auth/register', async (req, res) => {
+    try {
+        const response = await axios.post(`${ORDER_SERVICE_URL}/auth/register`, req.body);
+        res.json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json(error.response?.data || { error: 'Registration failed' });
+    }
+});
+
+/**
+ * POST /api/auth/login
+ * Login user
+ */
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const response = await axios.post(`${ORDER_SERVICE_URL}/auth/login`, req.body);
+        res.json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json(error.response?.data || { error: 'Login failed' });
+    }
+});
+
+/**
+ * GET /api/auth/me
+ * Get current user info
+ */
+app.get('/api/auth/me', async (req, res) => {
+    try {
+        const token = req.headers.authorization;
+        const response = await axios.get(`${ORDER_SERVICE_URL}/auth/me`, {
+            headers: { Authorization: token }
+        });
+        res.json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json(error.response?.data || { error: 'Failed to get user info' });
+    }
+});
+
+// ============================================
 // RESTAURANT ROUTES (→ Order Service)
 // ============================================
 
