@@ -41,12 +41,10 @@ services:
         value: production
 
   # Frontend (Static Site)
-  - type: web
+  - type: static
     name: food-delivery-frontend
-    runtime: static
     buildCommand: cd frontend-ui && npm install && npm run build
     staticPublishPath: frontend-ui/dist
-    plan: free
     routes:
       - type: rewrite
         source: /*
