@@ -409,6 +409,38 @@ async def get_order(
     }
 
 # ============================================
+# DATABASE SEEDING ENDPOINT
+# ============================================
+
+@app.post("/seed-database")
+async def seed_database_endpoint(db: Session = Depends(get_db)):
+    """Seed database with initial data (one-time setup)"""
+    
+    try:
+        # Check if already seeded
+        if db.query(Restaurant).count() > 0:
+            return {"message": "Database already seeded", "status": "skipped"}
+        
+        # Import seed functions
+        from seed import seed_restaurants, seed_menu_items, seed_demo_user
+        
+        # Run seeding
+        seed_restaurants(db)
+        seed_menu_items(db)
+        seed_demo_user(db)
+        
+        return {
+            "message": "Database seeded successfully",
+            "status": "success",
+            "restaurants": db.query(Restaurant).count(),
+            "menu_items": db.query(MenuItem).count(),
+            "users": db.query(User).count()
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Seeding failed: {str(e)}")
+
+# ============================================
 # HEALTH CHECK
 # ============================================
 
