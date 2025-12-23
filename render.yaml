@@ -40,15 +40,13 @@ services:
       - key: NODE_ENV
         value: production
 
-  # Frontend (Static Site)
-  - type: static
+  # Frontend
+  - type: web
     name: food-delivery-frontend
-    buildCommand: cd frontend-ui && npm install && npm run build
-    staticPublishPath: frontend-ui/dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    runtime: node
+    buildCommand: cd frontend-ui && npm install && npm run build && npm install -g serve
+    startCommand: serve -s frontend-ui/dist -l 3001
+    plan: free
     envVars:
       - key: VITE_API_URL
         value: https://food-delivery-api.onrender.com
