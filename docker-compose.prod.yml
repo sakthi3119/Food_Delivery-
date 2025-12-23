@@ -1,0 +1,103 @@
+services:
+  # ====================
+  # FRONTEND (Production Build)
+  # ====================
+  frontend:
+    build:
+      context: ./frontend-ui
+      dockerfile: Dockerfile.prod
+    container_name: food-delivery-frontend-prod
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=http://your-domain.com
+    networks:
+      - food-delivery-network
+    restart: unless-stopped
+
+  # ====================
+  # NGINX LOAD BALANCER
+  # ====================
+  nginx:
+    build: ./nginx
+    container_name: food-delivery-nginx-prod
+    ports:
+      - "8888:80"
+    networks:
+      - food-delivery-network
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+
+  # ====================
+  # API GATEWAY
+  # ====================
+  api-gateway:
+    build: ./api-gateway
+    container_name: food-delivery-api-gateway-prod
+    expose:
+      - "3000"
+    environment:
+      - PORT=3000
+      - ORDER_SERVICE_URL=http://order-service:8001
+      - DELIVERY_SERVICE_URL=http://delivery-service:8002
+      - INTERNAL_COMM_URL=http://internal-comm:9000
+      - NODE_ENV=production
+    networks:
+      - food-delivery-network
+    depends_on:
+      - order-service
+      - delivery-service
+      - internal-comm
+    restart: unless-stopped
+
+  # ====================
+  # ORDER SERVICE (Python)
+  # ====================
+  order-service:
+    build: ./order-service-python
+    container_name: food-delivery-order-service-prod
+    expose:
+      - "8001"
+    environment:
+      - PORT=8001
+      - INTERNAL_COMM_URL=http://internal-comm:9000
+    networks:
+      - food-delivery-network
+    restart: unless-stopped
+
+  # ====================
+  # DELIVERY SERVICE (Java)
+  # ====================
+  delivery-service:
+    build: ./delivery-service-java
+    container_name: food-delivery-delivery-service-prod
+    expose:
+      - "8002"
+    environment:
+      - SERVER_PORT=8002
+      - INTERNAL_COMM_URL=http://internal-comm:9000
+    networks:
+      - food-delivery-network
+    restart: unless-stopped
+
+  # ====================
+  # INTERNAL COMM SERVICE
+  # ====================
+  internal-comm:
+    build: ./internal-comm-service
+    container_name: food-delivery-internal-comm-prod
+    expose:
+      - "9000"
+    environment:
+      - PORT=9000
+      - ORDER_SERVICE_URL=http://order-service:8001
+      - DELIVERY_SERVICE_URL=http://delivery-service:8002
+      - NODE_ENV=production
+    networks:
+      - food-delivery-network
+    restart: unless-stopped
+
+networks:
+  food-delivery-network:
+    driver: bridge

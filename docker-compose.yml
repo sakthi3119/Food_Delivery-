@@ -1,0 +1,98 @@
+services:
+  # ====================
+  # FRONTEND
+  # ====================
+  frontend:
+    build: ./frontend-ui
+    container_name: food-delivery-frontend
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./frontend-ui:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:80
+    networks:
+      - food-delivery-network
+    depends_on:
+      - nginx
+
+  # ====================
+  # NGINX LOAD BALANCER
+  # ====================
+  nginx:
+    build: ./nginx
+    container_name: food-delivery-nginx
+    ports:
+      - "80:80"
+    networks:
+      - food-delivery-network
+    depends_on:
+      - api-gateway
+
+  # ====================
+  # API GATEWAY
+  # ====================
+  api-gateway:
+    build: ./api-gateway
+    container_name: food-delivery-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - ORDER_SERVICE_URL=http://order-service:8001
+      - DELIVERY_SERVICE_URL=http://delivery-service:8002
+      - INTERNAL_COMM_URL=http://internal-comm:9000
+    networks:
+      - food-delivery-network
+    depends_on:
+      - order-service
+      - delivery-service
+      - internal-comm
+
+  # ====================
+  # ORDER SERVICE (Python)
+  # ====================
+  order-service:
+    build: ./order-service-python
+    container_name: food-delivery-order-service
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - INTERNAL_COMM_URL=http://internal-comm:9000
+    networks:
+      - food-delivery-network
+
+  # ====================
+  # DELIVERY SERVICE (Java)
+  # ====================
+  delivery-service:
+    build: ./delivery-service-java
+    container_name: food-delivery-delivery-service
+    ports:
+      - "8002:8002"
+    environment:
+      - SERVER_PORT=8002
+      - INTERNAL_COMM_URL=http://internal-comm:9000
+    networks:
+      - food-delivery-network
+
+  # ====================
+  # INTERNAL COMM SERVICE
+  # ====================
+  internal-comm:
+    build: ./internal-comm-service
+    container_name: food-delivery-internal-comm
+    ports:
+      - "9000:9000"
+    environment:
+      - PORT=9000
+      - ORDER_SERVICE_URL=http://order-service:8001
+      - DELIVERY_SERVICE_URL=http://delivery-service:8002
+    networks:
+      - food-delivery-network
+
+networks:
+  food-delivery-network:
+    driver: bridge
