@@ -10,7 +10,7 @@ services:
       - key: PORT
         value: 3000
       - key: ORDER_SERVICE_URL
-        value: https://food-delivery-order.onrender.com
+        value: https://food-delivery-order-d394.onrender.com
       - key: DELIVERY_SERVICE_URL
         value: https://food-delivery-delivery.onrender.com
       - key: NODE_ENV
