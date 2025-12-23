@@ -496,11 +496,6 @@ async def seed_database_endpoint(db: Session = Depends(get_db)):
                 "status": "success",
                 "users": db.query(User).count()
             }
-            "status": "success",
-            "restaurants": db.query(Restaurant).count(),
-            "menu_items": db.query(MenuItem).count(),
-            "users": db.query(User).count()
-        }
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Seeding failed: {str(e)}")
