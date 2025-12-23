@@ -191,7 +191,8 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
         username=user_data.username,
         hashed_password=get_password_hash(user_data.password),
         full_name=user_data.full_name,
-        phone=user_data.phone
+        phone=user_data.phone,
+        role=user_data.role if hasattr(user_data, 'role') else 'customer'
     )
     
     db.add(new_user)
@@ -451,20 +452,29 @@ async def seed_database_endpoint(db: Session = Depends(get_db)):
     """Seed database with initial data (one-time setup)"""
     
     try:
-        # Check if already seeded
-        if db.query(Restaurant).count() > 0:
-            return {"message": "Database already seeded", "status": "skipped"}
-        
         # Import seed functions
         from seed import seed_restaurants, seed_menu_items, seed_demo_user
         
-        # Run seeding
-        seed_restaurants(db)
-        seed_menu_items(db)
+        # Always recreate demo user to fix role column
         seed_demo_user(db)
         
-        return {
-            "message": "Database seeded successfully",
+        # Check if restaurants already seeded
+        if db.query(Restaurant).count() == 0:
+            seed_restaurants(db)
+            seed_menu_items(db)
+            return {
+                "message": "Database fully seeded successfully",
+                "status": "success",
+                "restaurants": db.query(Restaurant).count(),
+                "menu_items": db.query(MenuItem).count(),
+                "users": db.query(User).count()
+            }
+        else:
+            return {
+                "message": "Demo user recreated with role column",
+                "status": "success",
+                "users": db.query(User).count()
+            }
             "status": "success",
             "restaurants": db.query(Restaurant).count(),
             "menu_items": db.query(MenuItem).count(),

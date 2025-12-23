@@ -160,10 +160,12 @@ def seed_menu_items(db: Session):
 def seed_demo_user(db: Session):
     """Create a demo user for testing"""
     
-    # Check if user exists
-    if db.query(User).filter(User.email == "demo@fooddelivery.com").first():
-        print("⚠️  Demo user already exists, skipping")
-        return
+    # Delete existing demo user if exists (for re-seeding)
+    existing = db.query(User).filter(User.email == "demo@fooddelivery.com").first()
+    if existing:
+        db.delete(existing)
+        db.commit()
+        print("⚠️  Deleted old demo user, creating new one with role")
     
     # Simple password hash
     from passlib.context import CryptContext
@@ -174,7 +176,8 @@ def seed_demo_user(db: Session):
         username="demouser",
         hashed_password=pwd_context.hash("demo123"),
         full_name="Demo User",
-        phone="+91 9999999999"
+        phone="+91 9999999999",
+        role="customer"
     )
     
     db.add(demo_user)
