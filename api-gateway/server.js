@@ -242,13 +242,19 @@ app.get('/', (req, res) => {
     res.json({
         message: 'Food Delivery API Gateway',
         version: '1.0.0',
+        status: 'running',
         endpoints: {
+            auth: '/api/auth/*',
             restaurants: '/api/restaurants',
             orders: '/api/orders',
             delivery: '/api/delivery',
             payments: '/api/payments'
         }
     });
+});
+
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'healthy' });
 });
 
 // Start server
